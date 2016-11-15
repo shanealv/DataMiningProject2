@@ -1,7 +1,9 @@
 #pragma once
 
+#include <vector>
+
 namespace dbscan
 {
-	double EuclideanDistance(double A[], double B[], int size);
-	int* DBScan(const double data[8][2], int rows, int cols, double epsilon, int minPts);
+	double EuclideanDistance(const std::vector<double> A, const std::vector<double> B);
+	std::vector<int> DBScan(const std::vector<std::vector<double>> data, double epsilon, int minPts);
 }

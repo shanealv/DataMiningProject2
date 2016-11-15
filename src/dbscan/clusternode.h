@@ -1,8 +1,8 @@
 #pragma once
 
+#include <cstdbool>
 #include <list>
 #include <memory>
-#include <cstdbool>
 
 namespace dbscan
 {

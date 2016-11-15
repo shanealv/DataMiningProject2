@@ -1,30 +1,35 @@
-#include <cmath>
+#include "dbscan.h"
+#include "clusternode.h"
 #include <algorithm>
+#include <cmath>
+#include <cstdbool>
 #include <iostream>
 #include <list>
 #include <memory>
 #include <stack>
 #include <vector>
-#include <stdbool.h>
-#include "dbscan.h"
-#include "clusternode.h"
 
 using namespace std;
 
 namespace dbscan
 {
-	double EuclideanDistance(const double A[], const double B[], int dimensions)
+	double EuclideanDistance(const vector<double> A, const vector<double> B)
 	{
+		if (A.size() != B.size())
+			throw logic_error("Distance undefined for vectors of different lengths");
+
 		double distance = 0;
-		for (int i = 0; i < dimensions; i++)
+		for (int i = 0; i < A.size(); i++)
 			distance += pow(B[i] - A[i], 2);
 		return sqrt(distance);
 	}
 
-	int* DBScan(const double data[8][2], int rows, int cols, double epsilon, int minPts)
+	vector<int> DBScan(const vector<vector<double>> data, double epsilon, int minPts)
 	{
+		int rows = data.size();
+		int cols = data[0].size();
 		auto nodes = vector<shared_ptr<ClusterNode>>(rows);
-		auto clusters = new int[rows];
+		auto clusters = vector<int>(rows);
 
 		for (int i = 0; i < rows; i++)
 			nodes[i] = make_shared<ClusterNode>();
@@ -33,7 +38,7 @@ namespace dbscan
 		for (int i = 0; i < rows; i++)
 			for (int j = i + 1; j < rows; j++)
 			{
-				double dist = EuclideanDistance(data[i], data[j], cols);
+				double dist = EuclideanDistance(data[i], data[j]);
 				if (dist <= epsilon)
 				{
 					nodes[i]->AddNeighbor(nodes[j]);
