@@ -85,8 +85,7 @@ namespace dbscan
 					continue;
 
 				// add to visited
-				auto newPtr(nodePtr);
-				visited.push_back(newPtr);
+				visited.push_back(nodePtr);
 
 				// if core point, add all points to SeedSet
 				auto neighbors = nodePtr->GetNeighbors();
