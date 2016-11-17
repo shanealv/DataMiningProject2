@@ -1,7 +1,11 @@
 #include "kmeans.h"
 #include <algorithm>
+#include <cfloat>
+#include <climits>
 #include <cstdbool>
 #include <functional>
+#include <iostream>
+#include <stdexcept>
 #include <list>
 #include <random>
 #include <vector>
@@ -20,8 +24,17 @@ namespace kmeans
 		return sqrt(distance);
 	}
 
-	vector<int> KMeans(vector<vector<double>> data, int k)
+	vector<int> KMeans(vector<vector<double>> data, int k, int maxIter)
 	{
+		if (k <= 0)
+			throw invalid_argument("k must be a positive integer");
+		if (maxIter <= 0)
+			throw invalid_argument("maxIter must be a positive integer");
+		if (data.size() <= 0)
+			throw invalid_argument("data must contain at least one record");
+		if (data[0].size() <= 0)
+			throw invalid_argument("records must contain at least one column");
+
 		int rows = data.size();
 		int cols = data[0].size();
 
@@ -33,7 +46,7 @@ namespace kmeans
 		vector<double> maximums(cols, DBL_MIN);
 
 		default_random_engine re;
-		vector<uniform_real_distribution<double>> unifs(cols);
+		vector<uniform_real_distribution<double>> distribs(cols);
 
 		// first calculate the range for each column
 		for (auto record : data)
@@ -48,16 +61,15 @@ namespace kmeans
 
 		// create random number generator for each column in a record
 		for (int i = 0; i < cols; i++)
-			unifs[i] = uniform_real_distribution<double> unif(minimums[i], maximums[i]);
+			distribs[i] = uniform_real_distribution<double>(minimums[i] - 1, maximums[i] + 1);
 
 		// initialize mean to random values
 		for (int i = 0; i < k; i++)
 		{
 			means[i] = vector<double>(cols);
 			for (int j = 0; j < cols; j++)
-				means[i][j] = unifs[i](re);
+				means[i][j] = distribs[j](re);
 		}
-
 		bool updated;
 
 		do
@@ -68,24 +80,27 @@ namespace kmeans
 			fill(numPerCluster.begin(), numPerCluster.end(), 0);
 
 			// calculate distances to each mean and assign
-			for (auto record : data)
+			for (int i = 0; i < rows; i++) // for each record
 			{
 				double minDist = DBL_MAX;
-				for (int i = 0; i < k; i++)
+				int cluster = -1;
+				for (int j = 0; j < k; j++) // for each mean
 				{
-					double dist = EuclideanDistance(data[i], means[i]);
+					// check if this mean is closer
+					double dist = EuclideanDistance(data[i], means[j]);
 					if (dist < minDist)
 					{
 						minDist = dist;
-						numPerCluster[i]++;
-						
-						// if the cluster is different, set updated flag to true
-						if (clusters[i] != i)
-						{
-							clusters[i] = i;
-							updated = true;
-						}
+						cluster = j;
 					}
+				}
+
+				// assign to nearest cluster
+				numPerCluster[cluster]++;
+				if (clusters[i] != cluster)
+				{
+					clusters[i] = cluster;
+					updated = true;
 				}
 			}
 
@@ -94,12 +109,14 @@ namespace kmeans
 				fill(mean.begin(), mean.end(), 0.0);
 
 			for (int i = 0; i < rows; i++) // sum all values
-				transform(means[clusters[i]].begin(), means[clusters[i]].end(), data[i].begin(), data[i].end(), plus<double>());
+				for (int j = 0, cluster = clusters[i]; j < cols; j++)
+					means[cluster][j] += data[i][j];
 
 			for (int i = 0; i < k; i++) // divide each by number in group to get new mean
-				transform(means[i].begin(), means[i].end(), means[i].begin(), bind1st(divides<double>(), numPerCluster[i]));
+				for (int j = 0; j < cols; j++)
+					means[i][j] /= numPerCluster[i];
 
-		} while (updated);
+		} while (updated && --maxIter > 0);
 
 		return clusters;
 	}

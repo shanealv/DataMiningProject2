@@ -1,4 +1,4 @@
-#include "dbscan.h"
+#include "kmeans.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -29,8 +29,9 @@ int main(int argc, char* argv[])
 	source.close();
 
 	int rows = data.size();
-	cout << "DBSCAN Test Code" << endl;
-	auto output = dbscan::DBScan(data, 5, 3);
+
+	cout << "k-means Test Code" << endl;
+	auto output = kmeans::KMeans(data, 2);
 	for (int i = 0; i < rows; i++)
 		cout << data[i][0] << ", " << data[i][1] << "\t" << output[i] << endl;
 	cout << endl;
