@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cfloat>
 #include <climits>
+#include <chrono>
 #include <cstdbool>
 #include <functional>
 #include <iostream>
@@ -39,13 +40,14 @@ namespace kmeans
 		int cols = data[0].size();
 
 		vector<vector<double>> means(k);
+		vector<vector<double>> temps(k);
 		vector<int> clusters(rows, -1);
 		vector<int> numPerCluster(k, 0);
 
 		vector<double> minimums(cols, DBL_MAX);
 		vector<double> maximums(cols, DBL_MIN);
 
-		default_random_engine re;
+		default_random_engine re(chrono::system_clock::now().time_since_epoch().count());
 		vector<uniform_real_distribution<double>> distribs(cols);
 
 		// first calculate the range for each column
@@ -67,6 +69,7 @@ namespace kmeans
 		for (int i = 0; i < k; i++)
 		{
 			means[i] = vector<double>(cols);
+			temps[i] = vector<double>(cols);
 			for (int j = 0; j < cols; j++)
 				means[i][j] = distribs[j](re);
 		}
@@ -105,17 +108,29 @@ namespace kmeans
 			}
 
 			// recalculate means
-			for (auto mean : means) // reset means
-				fill(mean.begin(), mean.end(), 0.0);
+			// reset temp values
+			for (auto temp : temps) 
+				fill(temp.begin(), temp.end(), 0.0);
 
-			for (int i = 0; i < rows; i++) // sum all values
-				for (int j = 0, cluster = clusters[i]; j < cols; j++)
-					means[cluster][j] += data[i][j];
-
-			for (int i = 0; i < k; i++) // divide each by number in group to get new mean
+			// sum up all the values for each cluster
+			for (int i = 0; i < rows; i++)
+			{
+				int c = clusters[i];
 				for (int j = 0; j < cols; j++)
-					means[i][j] /= numPerCluster[i];
+					temps[c][j] += data[i][j];
+			}
 
+			// Update Clusters
+			for (int i = 0; i < k; i++)
+			{
+				int count = numPerCluster[i];
+				if (count <= 0) // don't move empty clusters
+					continue;
+				for (int j = 0; j < cols; j++)
+				{
+					means[i][j] = temps[i][j] /  count;
+				}
+			}
 		} while (updated && --maxIter > 0);
 
 		return clusters;

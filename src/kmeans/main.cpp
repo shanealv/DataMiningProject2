@@ -1,4 +1,6 @@
 #include "kmeans.h"
+#include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -16,19 +18,62 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	char * filename = argv[argc - 1];
+	char * filename = NULL;
 	bool hasHeader = false;
-	int opt, k = 5;
+	int maxIter = INT_MAX;
+	int k = 5;
+	int opt, val;
 
-	while (getopt(argc, argv, "h") != -1) hasHeader = true;
-	while ((opt = getopt(argc, argv, "k")) != -1) k = atoi(argv[opt]);
-	cout << k << endl;
-	cin >> k;
-	if (k < 1)
+	while ((opt = getopt(argc, argv, "-hk:m:")) != -1)
 	{
-		cout << "invalid value for k";
+		switch (opt)
+		{
+		case '\1':
+			if (filename != NULL)
+			{
+				delete[] filename;
+				filename = NULL;
+			}
+			filename = new char[strlen(optarg) + 1];
+			strcpy(filename, optarg);
+			break;
+		case 'h':
+			hasHeader = true;
+			break;
+		case 'k':
+			val = atoi(optarg);
+			if (val < 1)
+			{
+				cerr << "invalid value of k" << endl;
+				return 0;
+			}
+			k = val;
+			break;
+		case 'm':
+			val = atoi(optarg);
+			if (val < 1)
+			{
+				cerr << "invalid value of m" << endl;
+				return 0;
+			}
+			maxIter = val;
+			break;
+		case '?': cerr << "Invalid Flag" << endl; break;
+		}
+	}
+
+	if (filename == NULL)
+	{
+		cerr << "no file specifed";
 		return 0;
 	}
+	if (k < 1)
+	{
+		cerr << "invalid value for k";
+		return 0;
+	}
+
+	cout << filename << " " << k << " " << hasHeader << endl;
 
 	ifstream source(filename);
 	string line;
@@ -51,15 +96,31 @@ int main(int argc, char* argv[])
 
 	int rows = data.size();
 
-	cout << "Group | Data" << endl;
-	auto output = kmeans::KMeans(data, k);
+	// print data 
+	//cout << "Group | Data" << endl;
+	auto output = kmeans::KMeans(data, k, maxIter);
+	//for (int i = 0; i < rows; i++)
+	//{
+	//	cout << output[i] << " | ";
+	//	for (auto feature : data[i])
+	//		cout << feature << " ";
+	//	cout << endl;
+	//}
+	//cout << endl;
+
+	// print summary
+	auto totals = vector<int>(k, 0);
 	for (int i = 0; i < rows; i++)
 	{
-		cout << output[i] << " | ";
-		for (auto feature : data[i])
-			cout << feature << " ";
-		cout << endl;
+		int group = output[i];
+		totals[group]++;
 	}
-	cout << endl;
+
+	cout << "Group" << "\t" << "# instances" << endl;
+	for (int i = 0; i < k; i++)
+	{
+		cout << i << "\t" << totals[i] << endl;
+	}
+
 	return 0;
 }

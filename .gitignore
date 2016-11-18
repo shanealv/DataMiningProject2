@@ -27,3 +27,11 @@
 *.exe
 *.out
 *.app
+
+# Visual Studio
+*.ipch
+*.db
+*.opendb
+*.sqlite
+*.suo
+*.json
