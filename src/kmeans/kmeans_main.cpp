@@ -98,8 +98,15 @@ int main(int argc, char* argv[])
 		vector<double> record;
 		stringstream lineStream(line);
 		string cell;
-		while (getline(lineStream, cell, ','))
-			record.push_back(stod(cell));
+		try 
+		{ 
+			while (getline(lineStream, cell, ','))
+				record.push_back(stod(cell));
+		}
+		catch ( ... ) {
+			// ignore bad lines
+			continue;
+		};
 		data.push_back(record);
 	}
 	source.close();

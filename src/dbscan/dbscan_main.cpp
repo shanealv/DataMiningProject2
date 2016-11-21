@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
 	}
 	
 	// Print Summary
-	vector<int> totals (numGroups, 0);
+	vector<int> totals (numGroups + 1, 0);
 	for (int i = 0; i < rows; i++)
 	{
 		int group = (*output)[i];
@@ -136,6 +136,7 @@ int main(int argc, char* argv[])
 	{
 		cout << i << "\t" << totals[i] << endl;
 	}
-
+	std::ofstream out("out.txt");
+    std::cout.rdbuf(out.rdbuf()); 
 	return 0;
 }

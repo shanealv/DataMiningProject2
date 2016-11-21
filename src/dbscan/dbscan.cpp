@@ -28,11 +28,12 @@ namespace dbscan
 	{
 		int rows = data.size();
 		int cols = data[0].size();
-		vector<shared_ptr<ClusterNode>> nodes (rows);
+		vector<shared_ptr<ClusterNode>> nodes(rows);
 		auto clusters = new vector<int>(rows);
 
 		for (int i = 0; i < rows; i++)
 			nodes[i] = make_shared<ClusterNode>();
+			//1nodes.push_back(make_shared<ClusterNode>());
 
 		// calculate the neighbors for each node
 		for (int i = 0; i < rows; i++)
@@ -65,7 +66,7 @@ namespace dbscan
 			while (!SeedSet.empty())
 			{
 				// expanded node
-				auto nodePtr = SeedSet.top();
+				shared_ptr<ClusterNode> nodePtr = SeedSet.top();
 
 				// remove from seed set
 				SeedSet.pop();
@@ -90,8 +91,8 @@ namespace dbscan
 				// if core point, add all points to SeedSet
 				auto neighbors = nodePtr->GetNeighbors();
 				if (neighbors.size() + 1 >= minPts)
-					for (auto nNode : neighbors)
-						SeedSet.push(nNode);
+					for (auto weakNode : neighbors)
+						SeedSet.push(weakNode.lock());
 			} // end while [seed set not empty]
 		} // end for [each node to assign]
 
