@@ -24,7 +24,7 @@ namespace dbscan
 		return sqrt(distance);
 	}
 
-	vector<int> DBScan(const vector<vector<double>> data, double epsilon, int minPts)
+	vector<int> DBScan(const vector<vector<double>> data, double epsilon, int minPts, int& numGroups)
 	{
 		int rows = data.size();
 		int cols = data[0].size();
@@ -47,14 +47,14 @@ namespace dbscan
 			}
 
 		// Assign all points
-		int clusterNum = 0;
+		numGroups = 0;
 		for (int i = 0; i < rows; i++)
 		{
 			// if already assigned or a not a core point, ignore
 			if (nodes[i]->GetClusterId() != ClusterNode::Unassigned || nodes[i]->GetNeighbors().size() + 1 < minPts)
 				continue;
 
-			int id = clusterNum++;
+			int id = numGroups++;
 			nodes[i]->SetClusterId(id);
 
 			// use DFS to assign each point neighbor to the same cluster (expanding core points only)

@@ -14,7 +14,12 @@ int main(int argc, char* argv[])
 {
 	if (argc <= 1)
 	{
-		cout << "Usage: ./kmeans [filename]" << endl;
+		cout << "Usage:"<< endl << "\t./kmeans [options] file" << endl;
+		cout << "Options:" << endl;
+		cout << "\t-h\t\tSkips first line of input file (for files with header information)" << endl;
+		cout << "\t-k <number>\tDefines the number of means to use (default is 5)" << endl;
+		cout << "\t-m <number>\tDefines the max number of iterations to run (default is INT_MAX)" << endl;
+		cout << "Example:" << endl << "\t./kmeans -h -k 5 -m 2 testData.csv" << endl;
 		return 0;
 	}
 
@@ -41,7 +46,7 @@ int main(int argc, char* argv[])
 			hasHeader = true;
 			break;
 		case 'k':
-			val = atoi(optarg);
+			val = stoi(optarg);
 			if (val < 1)
 			{
 				cerr << "invalid value of k" << endl;
@@ -50,7 +55,7 @@ int main(int argc, char* argv[])
 			k = val;
 			break;
 		case 'm':
-			val = atoi(optarg);
+			val = stoi(optarg);
 			if (val < 1)
 			{
 				cerr << "invalid value of m" << endl;
@@ -72,8 +77,13 @@ int main(int argc, char* argv[])
 		cerr << "invalid value for k";
 		return 0;
 	}
+	if (maxIter < 1)
+	{
+		cerr << "invalid value for m";
+		return 0;
+	}
 
-	cout << filename << " " << k << " " << hasHeader << endl;
+	cout << filename << " k=" << k << " MaxIter=" << maxIter << " HasHeader=" << hasHeader << endl;
 
 	ifstream source(filename);
 	string line;
@@ -96,19 +106,9 @@ int main(int argc, char* argv[])
 
 	int rows = data.size();
 
-	// print data 
-	//cout << "Group | Data" << endl;
 	auto output = kmeans::KMeans(data, k, maxIter);
-	//for (int i = 0; i < rows; i++)
-	//{
-	//	cout << output[i] << " | ";
-	//	for (auto feature : data[i])
-	//		cout << feature << " ";
-	//	cout << endl;
-	//}
-	//cout << endl;
 
-	// print summary
+	// Print Summary
 	auto totals = vector<int>(k, 0);
 	for (int i = 0; i < rows; i++)
 	{
@@ -116,7 +116,8 @@ int main(int argc, char* argv[])
 		totals[group]++;
 	}
 
-	cout << "Group" << "\t" << "# instances" << endl;
+	cout << "Cluster" << "\t" << "# instances" << endl;
+	cout << "All\t" << data.size() << endl;
 	for (int i = 0; i < k; i++)
 	{
 		cout << i << "\t" << totals[i] << endl;
