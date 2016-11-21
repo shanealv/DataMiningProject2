@@ -1,0 +1,12 @@
+./dbscan.exe
+./dbscan.exe testData.csv
+./dbscan.exe testData.csv -m 2
+./dbscan.exe -m 2 testData.csv
+./dbscan.exe -m 2 -e 0.5 testData.csv
+./dbscan.exe -m 2 -h -e 0.5 surgeries.csv
+./kmeans.exe
+./kmeans.exe testData.csv
+./kmeans.exe testData.csv -m 2
+./kmeans.exe -m 2 testData.csv
+./kmeans.exe -m 2 -e 0.5 testData.csv
+./kmeans.exe -m 2 -h -e 0.5 surgeries.csv
