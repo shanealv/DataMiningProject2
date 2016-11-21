@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++0x -g
+CFLAGS = -std=c++0x -O1
 BIN = bin/
 DBSCAN = ./src/dbscan/
 KMEANS = ./src/kmeans/

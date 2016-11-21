@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 {
 	if (argc <= 1)
 	{
-		cout << "Usage:"<< endl << "\t./kmeans [options] file" << endl;
+		cout << "Usage:"<< endl << "\t./kmeans.exe [options] file" << endl;
 		cout << "Options:" << endl;
 		cout << "\t-h\t\tSkips first line of input file (for files with header information)" << endl;
 		cout << "\t-k <number>\tDefines the number of means to use (default is 5)" << endl;

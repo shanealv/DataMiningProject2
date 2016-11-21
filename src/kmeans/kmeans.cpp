@@ -25,7 +25,7 @@ namespace kmeans
 		return sqrt(distance);
 	}
 
-	vector<int> KMeans(vector<vector<double>> data, int k, int maxIter)
+	vector<int> KMeans(vector<vector<double>>& data, int k, int maxIter)
 	{
 		if (k <= 0)
 			throw invalid_argument("k must be a positive integer");

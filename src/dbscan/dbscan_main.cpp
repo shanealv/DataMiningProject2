@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
 {
 	if (argc <= 1)
 	{
-		cout << "Usage: ./dbscan [options] file" << endl;
+		cout << "Usage: ./dbscan.exe [options] file" << endl;
 		cout << "Options:" << endl;
 		cout << "\t-e <number>\tEpsilon, the maximum distance for two adjacent nodes to be in the same cluster (default 5)" << endl;
 		cout << "\t-h\t\tSkips first line of input file (for files with header information)" << endl;
@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 			break;
 		case 'e':
 			tempDbl = stod(optarg);
-			if (tempDbl < 1)
+			if (tempDbl <= 0.0)
 			{
 				cerr << "invalid value of epsilon" << endl;
 				return 0;
@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
 		cerr << "no file specifed";
 		return 0;
 	}
-	if (eps <= 0)
+	if (eps <= 0.0)
 	{
 		cerr << "invalid value for epsilon";
 		return 0;
@@ -97,8 +97,15 @@ int main(int argc, char* argv[])
 		vector<double> record;
 		stringstream lineStream(line);
 		string cell;
-		while (getline(lineStream, cell, ','))
-			record.push_back(stod(cell));
+		try 
+		{ 
+			while (getline(lineStream, cell, ','))
+				record.push_back(stod(cell));
+		}
+		catch ( ... ) {
+			// ignore bad lines
+			continue;
+		};
 		data.push_back(record);
 	}
 	source.close();
@@ -106,19 +113,25 @@ int main(int argc, char* argv[])
 	int rows = data.size();
 	
 	// figure out how many groups there were
-	int numGroups;
+	int numGroups = -1;
 	auto output = dbscan::DBScan(data, eps, minPts, numGroups);
 
+	if (numGroups == -1)
+	{
+		cout << "No Clusters Founds" << endl;
+		return 0;
+	}
+	
 	// Print Summary
-	auto totals = vector<int>(numGroups, 0);
+	vector<int> totals (numGroups, 0);
 	for (int i = 0; i < rows; i++)
 	{
-		int group = output[i];
+		int group = (*output)[i];
 		totals[group]++;
 	}
 
 	cout << "Cluster" << "\t" << "# instances" << endl;
-	cout << "All\t" << data.size() << endl;
+	cout << "All\t" << rows << endl;
 	for (int i = 0; i < numGroups; i++)
 	{
 		cout << i << "\t" << totals[i] << endl;

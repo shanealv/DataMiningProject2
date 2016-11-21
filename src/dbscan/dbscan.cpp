@@ -13,7 +13,7 @@ using namespace std;
 
 namespace dbscan
 {
-	double EuclideanDistance(const vector<double> A, const vector<double> B)
+	double EuclideanDistance(const vector<double>& A, const vector<double>& B)
 	{
 		if (A.size() != B.size())
 			throw logic_error("Distance undefined for vectors of different lengths");
@@ -24,12 +24,12 @@ namespace dbscan
 		return sqrt(distance);
 	}
 
-	vector<int> DBScan(const vector<vector<double>> data, double epsilon, int minPts, int& numGroups)
+	vector<int>* DBScan(const vector<vector<double>>& data, double epsilon, int minPts, int& numGroups)
 	{
 		int rows = data.size();
 		int cols = data[0].size();
-		auto nodes = vector<shared_ptr<ClusterNode>>(rows);
-		auto clusters = vector<int>(rows);
+		vector<shared_ptr<ClusterNode>> nodes (rows);
+		auto clusters = new vector<int>(rows);
 
 		for (int i = 0; i < rows; i++)
 			nodes[i] = make_shared<ClusterNode>();
@@ -98,7 +98,7 @@ namespace dbscan
 		// copy results to clusters array
 		for (int i = 0; i < rows; i++)
 		{
-			clusters[i] = nodes[i]->GetClusterId();
+			(*clusters)[i] = nodes[i]->GetClusterId();
 		}
 
 		return clusters;

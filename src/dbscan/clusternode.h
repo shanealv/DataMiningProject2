@@ -16,8 +16,8 @@ namespace dbscan
 		int GetClusterId();
 		void SetClusterId(int id);
 
-		std::list<std::shared_ptr<ClusterNode>> GetNeighbors();
-		void AddNeighbor(const std::shared_ptr<ClusterNode> neighbor);
+		std::list<std::shared_ptr<ClusterNode>>& GetNeighbors();
+		void AddNeighbor(const std::shared_ptr<ClusterNode>& neighbor);
 
 		/// constants
 		static const int Unassigned = -1;
